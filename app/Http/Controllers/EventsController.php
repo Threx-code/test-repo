@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Event;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Validation\ValidatesRequests;
-use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Date;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class EventsController extends BaseController
 {
@@ -207,6 +208,31 @@ class EventsController extends BaseController
 
     public function getFutureEventsWithWorkshops()
     {
-        throw new \Exception('implement in coding task 2');
+        $arrayResult = [];
+        $events = DB::table('events')->select("*")->get();
+        if ($events) {
+            $num = 0;
+            foreach ($events as $key => $event) {
+                if ($this->getFutureWorkshop($event->id)) {
+                    $arrayResult[$num]['id'] = $event->id;
+                    $arrayResult[$num]['name'] = $event->name;
+                    $arrayResult[$num]['created_at'] = $event->created_at;
+                    $arrayResult[$num]['workshops'] = $this->getFutureWorkshop($event->id);
+                    $num += 1;
+                }
+            }
+        }
+        return $arrayResult;
+    }
+
+
+    protected function getFutureWorkshop($eventid)
+    {
+        $endDate = Carbon::now()->format('Y-m-d H:i:s');
+        $workShop = DB::table('workshops')->select("*")
+            ->where('event_id', $eventid)
+            ->where('start', '>', $endDate)->get();
+
+        return json_decode($workShop, true);
     }
 }
