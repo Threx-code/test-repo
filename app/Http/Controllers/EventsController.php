@@ -122,7 +122,7 @@ class EventsController extends BaseController
     }
 
 
-    public function getWorkshop($eventid)
+    protected function getWorkshop($eventid)
     {
         return DB::table('workshops')->select("*")->where('event_id', $eventid)->get();
     }
@@ -205,8 +205,8 @@ class EventsController extends BaseController
     ```
      */
 
-    // public function getFutureEventsWithWorkshops()
-    // {
-    //     throw new \Exception('implement in coding task 2');
-    // }
+    public function getFutureEventsWithWorkshops()
+    {
+        throw new \Exception('implement in coding task 2');
+    }
 }
