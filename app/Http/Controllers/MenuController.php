@@ -4,6 +4,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MenuItem;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Routing\Controller as BaseController;
 
 class MenuController extends BaseController
@@ -94,7 +95,30 @@ class MenuController extends BaseController
     ]
      */
 
-    public function getMenuItems() {
-        throw new \Exception('implement in coding task 3');
+    public function getMenuItems()
+    {
+        $menus = DB::table('menu_items')->select("*")->orderBY('id', 'ASC')->get();;
+        $menuArray = $childArray = [];
+        foreach ($menus as $key => $items) {
+            if (!$items->parent_id) {
+                $menuArray['id'] = $items->id;
+                $menuArray['name'] = $items->name;
+                $menuArray['url'] = $items->url;
+                $menuArray['created_at'] = $items->created_at;
+                $menuArray['updated_at'] = $items->updated_at;
+            }
+
+            if ($items->parent_id) {
+                $childArray[$items->parent_id]['children'][$items->id]['name'] = $items->id;
+                $childArray[$items->parent_id]['children'][$items->id]['name'] = $items->name;
+                $childArray[$items->parent_id]['children'][$items->id]['url'] = $items->url;
+                $menuArray[$items->parent_id]['children'][$items->id]['parent_id'] = $items->parent_id;
+                $childArray[$items->parent_id]['children'][$items->id]['created_at'] = $items->created_at;
+                $childArray[$items->parent_id]['children'][$items->id]['updated_at'] = $items->updated_at;
+            }
+
+            $menuArray['children'] = $childArray;
+        }
+        return response()->json([$menuArray]);
     }
 }
